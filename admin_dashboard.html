@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta charset="UTF-8">
+    <title>Danh sách báo cáo - Quản trị Việt Dân</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; background: #f4f7f6; margin: 0; padding: 20px; }
+        .admin-container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        h2 { color: #2c3e50; border-bottom: 2px solid #4facfe; padding-bottom: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #4facfe; color: white; }
+        tr:hover { background-color: #f9f9f9; }
+
+        .status { padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+        .urgent { background: #ffeaa7; color: #d63031; } 
+        .normal { background: #dff9fb; color: #0984e3; } 
+
+        .btn-view { background: #55efc4; color: #00b894; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+        .btn-delete { background: #ff7675; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-left: 5px; }
+        
+        .header-flex { display: flex; justify-content: space-between; align-items: center; }
+        .logout { color: #e74c3c; text-decoration: none; font-weight: bold; }
+        
+        /* Hiệu ứng khi danh sách trống */
+        .empty-msg { text-align: center; padding: 20px; color: #888; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <div class="header-flex">
+        <h2>DANH SÁCH BÁO CÁO BẠO LỰC</h2>
+        <a href="index.html" class="logout">Đăng xuất</a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Ngày gửi</th>
+                <th>Người gửi</th>
+                <th>Vấn đề</th>
+                <th>Mức độ</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody id="reportTableBody">
+            </tbody>
+    </table>
+    <div id="noDataMessage" class="empty-msg" style="display: none;">Chưa có báo cáo nào mới.</div>
+</div>
+
+<script>
+    function loadReports() {
+        const tableBody = document.getElementById('reportTableBody');
+        const noDataMsg = document.getElementById('noDataMessage');
+        
+        // Lấy dữ liệu từ LocalStorage
+        const reports = JSON.parse(localStorage.getItem('violence_reports')) || [];
+
+        // Xóa nội dung cũ trong bảng
+        tableBody.innerHTML = "";
+
+        if (reports.length === 0) {
+            noDataMsg.style.display = "block";
+        } else {
+            noDataMsg.style.display = "none";
+            // Duyệt ngược để báo cáo mới nhất lên đầu
+            reports.reverse().forEach((report, index) => {
+                // Tính toán lại index thật vì chúng ta đã reverse để xóa đúng mục
+                const originalIndex = reports.length - 1 - index; 
+                
+                const row = document.createElement('tr');
+                const statusClass = report.level === "Khẩn cấp" ? "urgent" : "normal";
+
+                row.innerHTML = `
+                    <td>${report.date}</td>
+                    <td>${report.sender}</td>
+                    <td>${report.issue.substring(0, 30)}${report.issue.length > 30 ? '...' : ''}</td>
+                    <td><span class="status ${statusClass}">${report.level}</span></td>
+                    <td>
+                        <button class="btn-view" onclick="viewDetail(${originalIndex})">Xem</button>
+                        <button class="btn-delete" onclick="deleteReport(${originalIndex})">Xóa</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+    }
+
+    function deleteReport(index) {
+        if(confirm("Bạn có chắc chắn muốn xóa báo cáo này không?")) {
+            let reports = JSON.parse(localStorage.getItem('violence_reports')) || [];
+            reports.splice(index, 1); // Xóa phần tử tại vị trí index
+            localStorage.setItem('violence_reports', JSON.stringify(reports));
+            loadReports(); // Tải lại bảng ngay lập tức
+        }
+    }
+
+    function viewDetail(index) {
+        let reports = JSON.parse(localStorage.getItem('violence_reports')) || [];
+        alert("NỘI DUNG CHI TIẾT:\n" + reports[index].issue);
+    }
+
+    // Tự động load dữ liệu khi mở trang
+    window.onload = loadReports;
+</script>
+
+</body>
+</html>
