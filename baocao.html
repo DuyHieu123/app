@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống tiếp nhận báo cáo - TH&THCS Việt Dân</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            --primary-color: #0084ff;
+            --secondary-color: #e4e6eb;
+            --text-main: #050505;
+            --text-sub: #65676b;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg-gradient);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* Nút quay về trang chủ */
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+        .back-btn:hover { background: white; transform: translateX(-5px); }
+
+        /* Khung Chat chính */
+        .chat-window {
+            width: 500px;
+            height: 85vh;
+            max-height: 700px;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        /* Header Chat */
+        .chat-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #efefef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .avatar-circle {
+            width: 45px;
+            height: 45px;
+            background: #0084ff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            position: relative;
+        }
+        .online-status {
+            width: 12px;
+            height: 12px;
+            background: #31a24c;
+            border: 2px solid white;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+        }
+
+        .user-name { font-weight: 700; font-size: 1.1rem; color: var(--text-main); }
+        .user-subtext { font-size: 0.8rem; color: #31a24c; font-weight: 600; }
+
+        /* Vùng nội dung tin nhắn */
+        .chat-content {
+            flex: 1;
+            padding: 20px;
+            background: #ffffff;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .received {
+            background-color: var(--secondary-color);
+            color: var(--text-main);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .sent {
+            background-color: var(--primary-color);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .time-stamp {
+            font-size: 0.7rem;
+            color: var(--text-sub);
+            margin-top: 4px;
+            display: block;
+        }
+
+        /* Footer nhập tin nhắn */
+        .chat-footer {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #efefef;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            flex: 1;
+            background: #f0f2f5;
+            border-radius: 20px;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 5px;
+            font-size: 0.95rem;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .action-btn:hover { transform: scale(1.1); }
+
+        .send-btn {
+            background: var(--primary-color);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-btn">🏠 Trang chủ</a>
+
+    <div class="chat-window">
+        <div class="chat-header">
+            <div class="user-info">
+                <div class="avatar-circle">
+                    VD
+                    <div class="online-status"></div>
+                </div>
+                <div>
+                    <div class="user-name">TH&THCSVD (Tiếp nhận báo cáo)</div>
+                    <div class="user-subtext">Đang hoạt động</div>
+                </div>
+            </div>
+            <div class="action-btn" title="Thông tin thêm">ℹ️</div>
+        </div>
+
+        <div class="chat-content" id="chatContainer">
+            <div class="message received">
+                Chào em, đây là hộp thư bảo mật của trường TH&THCS Việt Dân.
+                <span class="time-stamp">Hệ thống tự động</span>
+            </div>
+            <div class="message received">
+                Em hãy gửi nội dung báo cáo tại đây. Thầy cô luôn bên cạnh lắng nghe và bảo vệ em! 🛡️
+                <span class="time-stamp">Vừa xong</span>
+            </div>
+        </div>
+
+        <div class="chat-footer">
+            <button class="action-btn" title="Gửi ảnh">🖼️</button>
+            <button class="action-btn" title="Đính kèm tệp">📎</button>
+            <div class="input-group">
+                <input type="text" id="chatInput" placeholder="Nhập tin nhắn bí mật của em...">
+            </div>
+            <button class="action-btn send-btn" onclick="handleSend()">🕊️</button>
+        </div>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chatContainer');
+        const chatInput = document.getElementById('chatInput');
+
+        function handleSend() {
+            const text = chatInput.value.trim();
+            if (text === "") return;
+
+            // 1. Hiển thị lên màn hình chat
+            appendMessage(text, 'sent');
+            chatInput.value = "";
+
+            // 2. LƯU DỮ LIỆU VÀO LOCALSTORAGE
+            const reports = JSON.parse(localStorage.getItem('violence_reports')) || [];
+            const newReport = {
+                date: new Date().toLocaleDateString('vi-VN'),
+                sender: "Ẩn danh",
+                issue: text,
+                level: text.length > 20 ? "Khẩn cấp" : "Bình thường" // Tự động phân loại dựa trên độ dài
+            };
+            reports.push(newReport);
+            localStorage.setItem('violence_reports', JSON.stringify(reports));
+
+            // 3. Giả lập hệ thống phản hồi
+            setTimeout(() => {
+                appendMessage("Thông tin của em đã được truyền trực tiếp đến tài khoản quản lý TH&THCSVD. Thầy cô sẽ sớm phản hồi.", 'received');
+            }, 1000);
+        }
+
+        function appendMessage(text, type) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${type}`;
+            
+            const now = new Date();
+            const timeStr = now.getHours() + ":" + now.getMinutes().toString().padStart(2, '0');
+
+            msgDiv.innerHTML = `${text} <span class="time-stamp">${timeStr}</span>`;
+            
+            chatContainer.appendChild(msgDiv);
+            
+            // Tự động cuộn xuống cuối
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Gửi bằng phím Enter
+        chatInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                handleSend();
+            }
+        });
+    </script>
+</body>
+</html>
